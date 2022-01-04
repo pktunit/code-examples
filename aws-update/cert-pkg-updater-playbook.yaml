@@ -1,0 +1,19 @@
+---
+- name: Run Yum Update
+  hosts: aws
+  become: yes
+  become_user: root
+
+  tasks:
+  - name: Upgrade All Packages
+    yum:
+      name: "*"
+      state: latest
+  - name: Renew SSL Certificates
+    ansible.builtin.command:
+      cmd: certbot renew
+  - name: Restart Nginx
+    ansible.builtin.systemd:
+      name: nginx
+      state: restarted
+      enabled: yes
