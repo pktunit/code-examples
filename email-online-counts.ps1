@@ -15,7 +15,7 @@ function confirm_exit($exit_message) {
     Exit
 }
 # End  Date Validation #
-rasdial "Company VPN" rekon rekonsupport99!
+rasdial "Company VPN" company companysupport99!
 
 foreach ($client in $clients) {
     $database = "r2k_" + $client + "_Online"
