@@ -14,8 +14,8 @@ $exts = @("htm", "rtf", "txt")
 $files = @("colorschememapping.xml", "filelist.xml", "themedata.thmx")
 
 foreach ($ext in $exts) {
-    Get-Content "$sourcedir\username@rekon.com.$ext" | Foreach-Object { $_ -replace "username",$username -replace "fullname",$name -replace "position",$title } | Set-Content "$destdir\$username@rekon.com.$ext"
+    Get-Content "$sourcedir\username@company.com.$ext" | Foreach-Object { $_ -replace "username",$username -replace "fullname",$name -replace "position",$title } | Set-Content "$destdir\$username@company.com.$ext"
 }
 foreach ($file in $files) {
-    Get-Content "$sourcedir\username@rekon.com_files\$file" | Foreach-Object { $_ -replace "username",$username -replace "fullname",$name -replace "position",$title } | Set-Content "$destdir\$username@rekon.com_files\$file"
+    Get-Content "$sourcedir\username@company.com_files\$file" | Foreach-Object { $_ -replace "username",$username -replace "fullname",$name -replace "position",$title } | Set-Content "$destdir\$username@company.com_files\$file"
 }

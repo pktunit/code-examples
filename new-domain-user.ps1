@@ -24,7 +24,7 @@ $dept = $dept.ToUpper()
 
 # Create the user account
 New-ADUser -SAMAccountName $username -DisplayName $name -name $name -givenname $firstname -surname $lastname `
--UserPrincipalName ($username + �@rekon.com�) -Path "OU=Users,OU=User Accounts,DC=company,DC=com" `
+-UserPrincipalName ($username + �@company.com�) -Path "OU=Users,OU=User Accounts,DC=company,DC=com" `
 -Enabled $true -Company "Company Technologies" -Title $title -description $title -Department $dept `
 -AccountPassword (ConvertTo-SecureString $defaultpassword -AsPlainText -Force)
 
@@ -46,7 +46,7 @@ foreach($permission in $adp) {
     $ace = New-Object System.DirectoryServices.ActiveDirectoryAccessRule($sid,"ReadProperty","Allow",$guid,"None")
     $acl.AddAccessRule($ace)
 }
-Set-Acl -AclObject $acl -Path "AD:\cn=$name,ou=Users,ou=User Accounts,dc=rekon,dc=com"
+Set-Acl -AclObject $acl -Path "AD:\cn=$name,ou=Users,ou=User Accounts,dc=company,dc=com"
 
 # Create user folder in $userdir
 $foldername = $username.substring(0,1).toupper() + $username.substring(1,$username.length-2).tolower() + $username.substring($username.length-1).toupper()
@@ -55,7 +55,7 @@ New-Item "$userdir\$foldername" -type directory
 
 # Create Outlook signature
 New-Item "$userdir\$foldername\Signatures" -type directory
-New-Item "$userdir\$foldername\Signatures\$username@rekon.com_files" -type directory
+New-Item "$userdir\$foldername\Signatures\$username@company.com_files" -type directory
 
 $sourcedir = "\\titan\software\Signatures"
 $destdir = "$userdir\$foldername\Signatures"
