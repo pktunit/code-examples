@@ -1,5 +1,5 @@
-﻿$username = "asasr"
-$name = "Asas Raza"
+﻿$username = "nuser"
+$name = "New User"
 $title = "Quality Assurance Technician"
 $userdir = "\\phoenix\users"
 $foldername = $username.substring(0,1).toupper() + $username.substring(1,$username.length-2).tolower() + $username.substring($username.length-1).toupper()
