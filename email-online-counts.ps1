@@ -55,8 +55,8 @@ $releases Releases
     $smtp = "mail.company.com" 
     $to = "Treasury <Treasury@copmany.com>"
     $cc = "Jason <jason@company.com>"
-    $bcc = "Rekon IT <it@company.com>"
-    $from = "Rekon IT <it@company.com>"
+    $bcc = "Company IT <it@company.com>"
+    $from = "Company IT <it@company.com>"
     $month = Get-Date $date -format Y
     $subject = "Company Online $month File Count for $client"
     
