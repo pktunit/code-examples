@@ -4,6 +4,29 @@
 IP=$(curl --silent https://checkip.amazonaws.com)
 CIDR="${IP}"/32
 
-aws ec2 authorize-security-group-ingress --group-id sg-9b34a8a3 --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
+cat > hosts <<EOT
+---
+aws:
+  hosts:
+EOT
+aws ec2 describe-instances | jq -r '.Reservations[].Instances[] | "    " + .InstanceId + ":\n      ansible_host: " + .PublicIpAddress' >> hosts
+
+cat >> hosts <<EOT
+  vars:
+    ansible_user: ec2-user
+    ansible_ssh_private_key_file: ~/.ssh/aws_rsa
+    ansible_python_interpreter: /usr/bin/python
+...
+EOT
+cat hosts
+for i in $(aws ec2 describe-security-groups | jq -r '.SecurityGroups[].GroupId');
+  do
+    echo aws ec2 authorize-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}];
+    aws ec2 authorize-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}];
+  done
 ansible-playbook cert-pkg-updater-playbook.yaml
-aws ec2 revoke-security-group-ingress --group-id sg-9b34a8a3 --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
+for i in $(aws ec2 describe-security-groups | jq -r '.SecurityGroups[].GroupId');
+  do
+    echo aws ec2 revoke-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
+    aws ec2 revoke-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
+  done
