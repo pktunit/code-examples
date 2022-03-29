@@ -1,27 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 
-# Checks For Exceptions and Collisions
+# checks For Exceptions and Collisions
 check_for_errors () {
-CORENAME=$(echo "${FIRSTNAME:0:1}${LASTNAME:0:3}" | tr '[:lower:]' '[:upper:]')
-USERNAME=$(echo "${CLIENTCODE}${CORENAME}" | tr '[:upper:]' '[:lower:]')
-COLLISION=$(grep -e ^$USERNAME /etc/passwd)
+corename=$(echo "${firstname:0:1}${lastname:0:3}" | tr '[:lower:]' '[:upper:]')
+username=$(echo "${clientcode}${corename}" | tr '[:upper:]' '[:lower:]')
+collision=$(grep -e "^${username}" /etc/passwd)
 i="0"
-if [ ${#LASTNAME} -eq 2 ]; then
-	CORENAME=$(echo "${FIRSTNAME:0:1}${LASTNAME:0:2}${i}")
-	USERNAME=$(echo "${CLIENTCODE}${CORENAME}" | tr '[:upper:]' '[:lower:]')
+if [ ${#lastname} -eq 2 ]; then
+	corename="${firstname:0:1}${lastname:0:2}${i}"
+	username=$(echo "${clientcode}${corename}" | tr '[:upper:]' '[:lower:]')
 fi
-while [ "$COLLISION" != "" ]; do
-	i=$[$i+1]	
-	CORENAME=$(echo "${FIRSTNAME:0:1}${LASTNAME:0:2}${i}" | tr '[:lower:]' '[:upper:]')
-	USERNAME=$(echo "${CLIENTCODE}${CORENAME}" | tr '[:upper:]' '[:lower:]')
-	COLLISION=$(grep -e ^$USERNAME /etc/passwd)
+while [ "$collision" != "" ]; do
+  i=$((i+1))
+	corename=$(echo "${firstname:0:1}${lastname:0:2}${i}" | tr '[:lower:]' '[:upper:]')
+	username=$(echo "${clientcode}${corename}" | tr '[:upper:]' '[:lower:]')
+	collision=$(grep -e "^${username}" /etc/passwd)
 done
 }
 
-# Allows User To Verify Login/Password Information
+# allows User To Verify Login/Password Information
 verify_info () {
-read -p "Is this correct? Type (yes) to accept (no) to exit: " ACCEPT
-case $ACCEPT in
+read -rp "is this correct? Type (yes) to accept (no) to exit: " accept
+case $accept in
 	"n" | "no" )
 	exit 1;;
 	"yes" )
@@ -31,17 +31,17 @@ case $ACCEPT in
 esac
 }
 
-# Runs Commands To Add User
+# runs Commands To Add User
 add_user () {
-     sudo /usr/sbin/useradd -g $CLIENTNAME -d /home/$CLIENTNAME $USERNAME
-     echo "$PASS" | sudo /usr/bin/passwd $USERNAME --stdin
+     sudo /usr/sbin/useradd -g "${clientname}" -d "/home/${clientname} ${username}"
+     echo "${pass}" | sudo /usr/bin/passwd "${username}" --stdin
 }	
 
-# Checks If User Wishes To Launch Core
+# checks If User Wishes To Launch Core
 verify_core () {
 echo ""
-read -p "Do you wish to launch CORE? Type (yes) to start CORE (no) to exit: " COREACCEPT
-case $COREACCEPT in
+read -rp "do you wish to launch CORE? Type (yes) to start CORE (no) to exit: " coreaccept
+case $coreaccept in
     "n" | "no" )
     exit 1;;
     "yes" )
@@ -51,35 +51,35 @@ case $COREACCEPT in
 esac
 }
 
-# Launches CORE
+# launches CORE
 launch_core () {
-    cd /medata/$CLIENTNAME/EXE
-    . msset.ex
-    cobrun ./SMENU NEW STD SMENU.INI
+    cd "/medata/$clientname/EXE" || return
+    ./msset.ex
+    cobrun ./smenu NEW STD SMENU.INI
 
 }
 
-# Main 
-read -p "First Name: " FIRSTNAME
-read -p "Last Name: " LASTNAME
-grep -v \# /etc/customers
+# main 
+read -rp "First Name: " firstname
+read -rp "Last Name: " lastname
+grep -v "#" /etc/customers
 echo ""
-echo "The Client Code is the two character code surrounded by parenthesis."
+echo "the Client Code is the two character code surrounded by parenthesis."
 echo ""
-read -p "Client Code: " CLIENTCODE
-CLIENTNAME=$(grep \($CLIENTCODE\) /etc/customers | awk '{print $1}')
+read -rp "Client Code: " clientcode
+clientname=$(grep "(${clientcode})" /etc/customers | awk '{print $1}')
 check_for_errors
-echo "Please Verify the following information."
+echo "please Verify the following information."
 echo ""
 echo "*****"
-echo "Name: $FIRSTNAME $LASTNAME"
-echo "Client: $CLIENTNAME"
-echo "CORE Login: $CORENAME"
-echo "CORE Password: $CORENAME"
-echo "$(hostname) Login: $USERNAME"
-PASS=$(</dev/urandom tr -dc A-Za-z0-9 | head -c8)
-echo "$(hostname) Password: $PASS"
-#CRYPTPASS=$(perl -e 'print crypt($PASS, "salt")')
+echo "Name: $firstname ${lastname}"
+echo "Client: ${clientname}"
+echo "Core Login: ${corename}"
+echo "Core Password: ${corename}"
+echo "$(hostname) login: ${username}"
+pass=$(</dev/urandom tr -dc A-Za-z0-9 | head -c8)
+echo "$(hostname) password: ${pass}"
+#cryptpass=$(perl -e 'print crypt(${pass}, "salt")')
 echo "*****"
 echo ""
 verify_info

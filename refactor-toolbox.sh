@@ -1,26 +1,26 @@
-#/bin/sh
+#!/bin/bash
 
-read -p "Please type the version number to upgrade to: " NEWVER
-echo "You are attempting to upgrade to version: ${NEWVER} "
+read -rp "Please type the version number to upgrade to: " newver
+echo "You are attempting to upgrade to version: ${newver} "
 
 get_release() {
-read -p "Please specify the release type (int) for internal release (gen) for general release: " RELEASE
+read -rp "Please specify the release type (int) for internal release (gen) for general release: " release
 
-case $RELEASE in
+case "${release}" in
   "int" | "INT" )
-    CONTAINER="refactor-test"
-    FOPCONTAINER="fop_test"
+    container="refactor-test"
+    fopcontainer="fop_test"
     run_update;;
   "gen" | "GEN" )
-    CONTAINER="refactor-prod"
-    FOPCONTAINER="fop_prod"
+    container="refactor-prod"
+    fopcontainer="fop_prod"
     run_update;;
   "all" | "ALL" )
-    CONTAINER="refactor-test"
-    FOPCONTAINER="fop_test"
+    container="refactor-test"
+    fopcontainer="fop_test"
     run_update
-    CONTAINER="refactor-prod"
-    FOPCONTAINER="fop_prod"
+    container="refactor-prod"
+    fopcontainer="fop_prod"
     run_update;;
   * )
     get_release;;
@@ -28,47 +28,47 @@ esac
 }
 
 #Commented out unless new flatworm is needed.  Will add code to prompt user if new flatworm is available.
-#mkdir -pv /medata/version_flatworm/${NEWVER}
-#cp -v /medata/updates/${NEWVER}/TOOLBOX/flatworm/* /medata/version_flatworm/${NEWVER}
+#mkdir -pv "/medata/version_flatworm/${newver}"
+#cp -v "/medata/updates/${newver}/TOOLBOX/flatworm/"* "/medata/version_flatworm/${newver}"
 
 run_update () {
-SOURCE=/medata/updates/${NEWVER}/TOOLBOX/${CONTAINER}
-TARGET=/opt/${CONTAINER}
-RPCTARGET=/opt/toolbox-rpc-new/java_lib/
-mkdir -pv ${SOURCE}
-chown -R root:root ${SOURCE}
-chmod -R 775 ${SOURCE}
+source="/medata/updates/${newver}/TOOLBOX/${container}"
+target="/opt/${container}"
+rpctarget=/opt/toolbox-rpc-new/java_lib/
+mkdir -pv "${source}"
+chown -R root:root "${source}"
+chmod -R 775 "${source}"
 
-sed -i 's/opt\/jdk1\.6\.0_16/usr\/java\/jdk1\.5\.0_22/g' ${SOURCE}/bin/*.sh
+sed -i 's/opt\/jdk1\.6\.0_16/usr\/java\/jdk1\.5\.0_22/g' "${source}/bin/*.sh"
 
-source ${TARGET}/bin/setenv.sh
-${TARGET}/bin/shutdown.sh
+"${target}/bin/setenv.sh"
+"${target}/bin/shutdown.sh"
 sleep 5
 
 echo "Updating FOP containers"
-cp -rv /medata/updates/${NEWVER}/CORE/SXML/* /opt/toolbox-rpc-new/${FOPCONTAINER}/
+cp -rv "/medata/updates/${newver}/CORE/SXML/"* "/opt/toolbox-rpc-new/${fopcontainer}/"
 
 echo "Updating FOP libs"
-cp -rv /medata/updates/${NEWVER}/CORE/lib_${CONTAINER}/* ${RPCTARGET}${CONTAINER}/
+cp -rv "/medata/updates/${newver}/CORE/lib_${container}/"* "${rpctarget}${container}/"
 
 echo "Updating Tomcat binaries and libs"
-#cp -rv ${SOURCE}/bin/* ${TARGET}/bin
-#cp -rv ${SOURCE}/common/* ${TARGET}/common
+#cp -rv "${source}/bin/"* "${target}/bin"
+#cp -rv "${source}/common/"* "${target}/common"
 
 # Shared Libs
-cp -rv ${SOURCE}/shared/* ${TARGET}/shared
+cp -rv "${source}/shared/"* "${target}/shared"
 
 echo "Updating Medata Toolbox base.war"
-cp -v ${SOURCE}/webapps/base.war ${TARGET}/webapps/base.war
+cp -v "${source}/webapps/base.war" "${target}/webapps/base.war"
 
 echo "Running client specific Toolbox updates."
-for CLIENT in $(awk '{print $1}' ${SOURCE}/clients); do
-echo  "Updating webapps folder for: ${CLIENT}"
-  cp -rv ${SOURCE}/webapps/${CLIENT} ${TARGET}/webapps/
+for client in $(awk '{print $1}' "${source}/clients"); do
+echo  "Updating webapps folder for: ${client}"
+  cp -rv "${source}/webapps/${client}" "${target}/webapps/"
 done
 
-source ${TARGET}/bin/setenv.sh
-${TARGET}/bin/startup.sh
+"${target}/bin/setenv.sh"
+"${target}/bin/startup.sh"
 }
 
 get_release

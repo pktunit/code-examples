@@ -21,18 +21,18 @@ EOT
 cat hosts
 
 # Allow SSH access from current IP
-for i in $(aws ec2 describe-security-groups | jq -r '.SecurityGroups[].GroupId');
+for GROUP in $(aws ec2 describe-security-groups | jq -r '.SecurityGroups[].GroupId');
   do
-    echo aws ec2 authorize-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}];
-    aws ec2 authorize-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}];
+    echo aws ec2 authorize-security-group-ingress --group-id ${GROUP} --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}];
+    aws ec2 authorize-security-group-ingress --group-id ${GROUP} --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}];
   done
 
 # Run Ansible Playbook
 ansible-playbook cert-pkg-updater-playbook.yaml
 
 # Deny SSH access from current IP
-for i in $(aws ec2 describe-security-groups | jq -r '.SecurityGroups[].GroupId');
+for GROUP in $(aws ec2 describe-security-groups | jq -r '.SecurityGroups[].GroupId');
   do
-    echo aws ec2 revoke-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
-    aws ec2 revoke-security-group-ingress --group-id $i --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
-  done
+    echo aws ec2 revoke-security-group-ingress --group-id ${GROUP} --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
+    aws ec2 revoke-security-group-ingress --group-id ${GROUP} --ip-permissions IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp="${CIDR}"}]
+  Oone
